@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\StudentController;
+use App\Http\Controllers\auth\AuthController;
+use App\Http\Controllers\SliderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,14 +15,25 @@ use App\Http\Controllers\StudentController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/login', function () {
+    return view('admin.auth.login');
+})->name('loginForm');
 
-Route::get("students",[StudentController::class, "index"])->name("students.index");
-Route::post("students",[StudentController::class, "store"])->name("students.store");
-Route::get("students/create",[StudentController::class, "create"])->name("students.create");
-Route::get("students/{student}",[StudentController::class, "show"])->name("students.show");
-Route::patch("students/{student}",[StudentController::class, "update"])->name("students.update");
-Route::delete("students/{student}",[StudentController::class, "destroy"])->name("students.destroy");
-Route::get("students/{student}/edit",[StudentController::class, "edit"])->name("students.edit");
+Route::get('/register', function () {
+    return view('admin.auth.register');
+})->name('registerForm');
+
+Route::post('/register', [AuthController::class, 'register'])->name('register');
+Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('dashboard');
+
+    Route::resource('sliders', SliderController::class);
+    Route::post('getSliders', [SliderController::class, 'getSliders'])->name('getSliders');
+});
